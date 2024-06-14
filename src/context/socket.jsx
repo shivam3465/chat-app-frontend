@@ -11,7 +11,7 @@ const SocketProvider = ({ children }) => {
 
 	useEffect(() => {
 		if (!socketRef.current) {
-			const socketInstance = io("http://localhost:4000", {
+			const socketInstance = io(import.meta.env.VITE_BASE_URL, {
 				withCredentials: true,
 			});
 
