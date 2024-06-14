@@ -1,0 +1,72 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	scroll-behavior: smooth;
+	/* transition: all cubic-bezier(0.4, 0, 0.2, 1) 150ms; */
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+	width: 5px;
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+	/* background-color: rgba(231, 231, 231, 0.624);   */
+	box-shadow: inset 0px 0px 5px rgb(203, 202, 202);
+	cursor: pointer;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+	background-color: rgba(41, 41, 41, 0.357);
+	cursor: grab;
+	/* outline: 1px solid slategrey;     */
+}
+.scrollbar-custom::-webkit-scrollbar-thumb:active {
+	cursor: grabbing;
+}
+
+.icon {
+	background: linear-gradient(
+		40deg,
+		rgb(119, 81, 245) 0%,
+		rgba(144, 78, 222, 0.836635728510154) 58%,
+		rgb(182, 76, 252) 100%
+	);
+	color: transparent;
+	-webkit-background-clip: text;
+	background-clip: text;
+}
+
+.shimmer {
+	background: linear-gradient(
+		to right,
+		transparent 0%,
+		rgba(44, 44, 44, 0.451) 50%,
+		white 100%
+	);
+	background-size: 200% 100%;
+	animation: shimmer 2s infinite linear;
+	border-radius: 8px;
+	margin: 8px 0;
+}
+
+@keyframes shimmer {
+	from {
+		background-position: 200% 0;
+	}
+	to {
+		background-position: -200% 0;
+	}
+}
+
+/* Scrollbar styles for Firefox */
+/* .scrollbar-custom {
+	scrollbar-width: thin; 
+	scrollbar-color: rgba(61, 61, 61, 0.455) transparent; 
+} */
