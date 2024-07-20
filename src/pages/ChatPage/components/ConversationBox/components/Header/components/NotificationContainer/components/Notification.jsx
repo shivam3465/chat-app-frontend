@@ -6,7 +6,7 @@ import { getSocket } from "../../../../../../../../../context/socket";
 import { handleAcceptFriendRequest, handleRejectFriendRequest } from "../../../services/socketEvent.handler";
 
 
-const Notification = ({ notification, setClosePopOver = () => {} }) => {
+const Notification = ({ notification, setClosePopOver,notifications}) => {
 	const socket = getSocket();
 
 	const acceptFriendRequest = () => {
@@ -19,12 +19,17 @@ const Notification = ({ notification, setClosePopOver = () => {} }) => {
 		handleRejectFriendRequest(socket, notification?.id);
 	};
 
+	const closeNotification = () => {
+		setClosePopOver(true);
+		const newNotificationArray = notifications?.filter((item))
+	}
+
 	return (
 		<div className="flex items-center justify-start px-2 py-4 w-full relative">
 			{notification.readOnly && (
 				<IoMdClose
 					className="text-[18px] absolute top-1 right-1 cursor-pointer active:scale-95"
-					onClick={() => setClosePopOver(true)}
+					onClick={closeNotification}
 				/>
 			)}
 

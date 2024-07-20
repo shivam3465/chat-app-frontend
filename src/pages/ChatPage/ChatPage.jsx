@@ -8,6 +8,7 @@ import { getSocket } from "../../context/socket";
 import {
 	handleFriendRequestAcceptedByUser,
 	handleFriendRequestReceived,
+	handleMessageFailure,
 	handleMessageReadByReceiver,
 	handleNewMessageReceived,
 	handleSentMessageStatusUpdate,
@@ -20,7 +21,7 @@ const ChatPage = () => {
 	const { notifications } = useSelector((state) => state.user);
 
 	const { messageObj } = useSelector((state) => state.messages);
-	
+
 	const dispatch = useDispatch();
 	const socket = getSocket();
 
@@ -28,11 +29,13 @@ const ChatPage = () => {
 
 	handleFriendRequestReceived(socket, dispatch, notifications);
 
-	handleNewMessageReceived(socket,dispatch,messageObj)
+	handleNewMessageReceived(socket, dispatch, messageObj);
 
-	handleSentMessageStatusUpdate(socket,dispatch,messageObj)
-	
-	handleMessageReadByReceiver(socket,dispatch,messageObj)
+	handleSentMessageStatusUpdate(socket, dispatch, messageObj);
+
+	handleMessageReadByReceiver(socket, dispatch, messageObj);
+
+	handleMessageFailure(socket, dispatch, messageObj);
 
 	if (!isLoggedIn) return <Navigate to={"/"} />;
 
@@ -47,7 +50,7 @@ const ChatPage = () => {
 			) : (
 				<div className="flex-[2] w-full h-screen overflow-hidden flex flex-col items-center justify-center">
 					<div className="text-[28px] text-[#6c25d688] font-bold px-8 text-center">
-						Please select a conversation to start chatting 
+						Please select a conversation to start chatting
 					</div>
 				</div>
 			)}

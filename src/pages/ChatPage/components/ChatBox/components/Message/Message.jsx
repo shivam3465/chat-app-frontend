@@ -2,6 +2,8 @@ import { getFormattedTime } from "../../../../../../utils/helperFunctions";
 import TriangleSVG from "../TriangleSvg/TriangleSVG";
 import { IoCheckmarkDoneOutline, IoCheckmarkOutline } from "react-icons/io5";
 import { CiClock2 } from "react-icons/ci";
+import { CiCircleInfo } from "react-icons/ci";
+
 import { MESSAGE_STATUS } from "../../../../../../Events/message.events";
 import { useEffect } from "react";
 import { updateMessageStatusToREAD } from "../../services/socketEvent.handler";
@@ -12,21 +14,26 @@ const Message = ({ message, messageEndRef }) => {
 	const { messageContent, self, time, status, _id, conversationId, owner } =
 		message;
 
-	const {isTabActive}= useSelector(state => state.conversation)
+	const { isTabActive } = useSelector((state) => state.conversation);
 
 	const socket = getSocket();
 
-	useEffect(() => {		
-		if (status !== MESSAGE_STATUS.READ && !self && isTabActive) {		
+	useEffect(() => {
+		if (status !== MESSAGE_STATUS.READ && !self && isTabActive) {
 			updateMessageStatusToREAD(socket, _id, conversationId, owner);
 		}
-	}, [status,isTabActive]);
+	}, [status, isTabActive]);
 
 	return (
 		<div
 			ref={messageEndRef}
 			className={`w-full flex px-4
-             ${self ? "justify-end" : "justify-start"} `}>
+             ${self ? "justify-end" : "justify-start"} `}
+			title={
+				MESSAGE_STATUS.FAILURE
+					? "Failed to send the message"
+					: messageContent
+			}>
 			<div
 				className={`min-w-[85px] max-w-[52%]  px-3 py-[6px] rounded-[20px] text-[14px] my-[5px] relative mx-2 border-1 border-black shadow-md shadow-[#d8d6d6] pb-[16px] ${
 					self
@@ -57,6 +64,8 @@ const Message = ({ message, messageEndRef }) => {
 								<IoCheckmarkDoneOutline className="text-[14px] ml-1 text-[#4deeff]" />
 							) : status === MESSAGE_STATUS.DELIVERED ? (
 								<IoCheckmarkDoneOutline className="text-[14px] ml-1 text-[#e1e1e1]" />
+							) : status === MESSAGE_STATUS.FAILURE ? (
+								<CiCircleInfo className="text-[14px] ml-1 text-[#cd2727]" />
 							) : (
 								<IoCheckmarkOutline className="text-[14px] ml-1 text-[#e1e1e1]" />
 							)

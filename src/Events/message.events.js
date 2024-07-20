@@ -22,12 +22,16 @@ const MESSAGE_EVENTS = {
 
 	// response to the  DELETE_MESSAGE
 	MESSAGE_DELETED: "MESSAGE_DELETED",
+
+	//message not sent ,  response from our server to frontend
+	MESSAGE_FAILED: "MESSAGE_FAILED",
 };
 
 const MESSAGE_STATUS = {
 	SENT: "SENT",
 	DELIVERED: "DELIVERED",
 	READ: "READ",
+	FAILURE: "FAILURE",
 }
 
 export { MESSAGE_EVENTS, MESSAGE_STATUS };

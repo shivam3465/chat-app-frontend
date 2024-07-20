@@ -29,7 +29,7 @@ const Header = () => {
 
 	const handleDarkModeChange = () => {
 		setDarkMode(!darkMode);
-	};
+	};	
 
 	const usersOptionsArray = [
 		<div
@@ -105,6 +105,7 @@ const Header = () => {
 					)}
 				</GradientIconWrapper>
 
+				{/* notification section */}
 				<PopOverWrapper
 					optionsArray={notificationArray}
 					shouldClosePopOver={closePopOver}>
@@ -127,9 +128,8 @@ const Header = () => {
 					</div>
 				</PopOverWrapper>
 
-				<PopOverWrapper
-					optionsArray={usersOptionsArray}
-					shouldClosePopOver={closePopOver}>
+				{/* three dot icon  */}
+				<PopOverWrapper optionsArray={usersOptionsArray}>
 					<GradientIconWrapper className="text-[20px] cursor-pointer active:scale-[.95]">
 						<IoEllipsisVertical />
 					</GradientIconWrapper>

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Popover, PopoverButton, PopoverPanel } from "@headlessui/react";
 
 const defaultAnchor = {
@@ -7,14 +7,23 @@ const defaultAnchor = {
 };
 
 // passed shouldClosePopover because to control the closing and opening of popover
-const PopOverWrapper = ({ children, optionsArray, anchor = defaultAnchor ,shouldClosePopOver = false}) => {
+const PopOverWrapper = ({
+	children,
+	optionsArray,
+	anchor = defaultAnchor,
+	shouldClosePopOver = false,
+}) => {
 	const buttonRef = useRef(null);
-	
-	const handlePopOverClose = (shouldClosePopOver) => {		
-		if (buttonRef.current && shouldClosePopOver === true) {			
+
+	const handlePopOverClose = () => {		
+		if (buttonRef.current && shouldClosePopOver) {
 			buttonRef.current.click();
 		}
 	};
+
+	useEffect(() => {		
+		if(shouldClosePopOver) handlePopOverClose();
+	}, [shouldClosePopOver]);
 
 	return (
 		<Popover>

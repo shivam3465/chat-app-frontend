@@ -3,6 +3,46 @@ import { USER_EVENTS } from "../../../Events/user.events";
 import { setMessageObj } from "../../../redux/slice/message.slice";
 import { setNotifications } from "../../../redux/slice/user.slice";
 
+const findAndUpdateMessageObj = (
+	messageObj,
+	newMessageStatus,
+	data,
+	newMessageId = null
+) => {
+	let newMessageObj = { ...messageObj };
+	const { messageId, conversationId } = data;
+
+	const prevMessageArray = messageObj[conversationId] || [];
+	const foundMessageIndex = prevMessageArray?.findIndex(
+		(mes) => mes._id === messageId
+	);
+
+	if (foundMessageIndex !== -1) {
+		// Create a copy of the previous message array
+		const updatedMessageArray = [...prevMessageArray];
+
+		// Create the base updated message object
+		let updatedMessage = {
+			...prevMessageArray[foundMessageIndex],
+			status: newMessageStatus,
+		};
+
+		// Conditionally add the newMessageId if it exists
+		if (newMessageId) {
+			updatedMessage._id = newMessageId;
+		}
+
+		// Replace the old message with the updated message
+		updatedMessageArray[foundMessageIndex] = updatedMessage;
+
+		// Update the message object with the new array
+		newMessageObj[conversationId] = updatedMessageArray;
+
+		return newMessageObj;
+	}
+	return null;
+};
+
 //will look for the response of above emitted event
 const handleFriendRequestAcceptedByUser = (
 	socket,
@@ -16,7 +56,11 @@ const handleFriendRequestAcceptedByUser = (
 			let newNotifications = prevNotifications.filter(
 				(Notification) => Notification.id !== data.id
 			);
-			newNotifications.push({ ...data, readOnly: true });
+			newNotifications.push({
+				...data,
+				readOnly: true,
+				notificationId: new Date().getTime(),
+			});
 
 			if (prevNotifications) dispatch(setNotifications(newNotifications));
 			else dispatch(setNotifications([data]));
@@ -53,7 +97,7 @@ const handleNewMessageReceived = (socket, dispatch, messageObj) => {
 				return;
 			}
 
-			const {  conversationId } = message;
+			const { conversationId } = message;
 
 			// console.log("new message received ", sender, message);
 
@@ -87,30 +131,18 @@ const handleSentMessageStatusUpdate = (socket, dispatch, messageObj) => {
 				return;
 			}
 
-			let newMessageObj = { ...messageObj };
-
-			const prevMessageArray = messageObj[conversationId] || [];
-			const foundMessageIndex = prevMessageArray?.findIndex(
-				(mes) => mes._id === prevMessageId
+			// yaha se sab naya hai
+			const newMessageObj = findAndUpdateMessageObj(
+				messageObj,
+				MESSAGE_STATUS.DELIVERED,
+				{
+					messageId: prevMessageId,
+					conversationId,
+				},
+				newMessageId
 			);
-
-			if (foundMessageIndex !== -1) {
-				const updatedMessageArray = [...prevMessageArray] || [];
-
-				const updatedMessage = {
-					...prevMessageArray[foundMessageIndex],
-					_id: newMessageId,
-					status,
-				};
-
-				// Replace the old message with the updated message
-				updatedMessageArray[foundMessageIndex] = updatedMessage;
-
-				// Update the message object with the new array
-				newMessageObj[conversationId] = updatedMessageArray;
-
-				dispatch(setMessageObj(newMessageObj));
-			}
+			if (newMessageObj) dispatch(setMessageObj(newMessageObj));
+			// }
 		});
 	}
 };
@@ -130,33 +162,30 @@ const handleMessageReadByReceiver = (socket, dispatch, messageObj) => {
 				return;
 			}
 
-			// console.log("message read by receiver ", data);
+			let newMessageObj = findAndUpdateMessageObj(
+				messageObj,
+				MESSAGE_STATUS.READ,
+				data,
+				null
+			);
 
-			let newMessageObj = { ...messageObj };
+			if (newMessageObj) dispatch(setMessageObj(newMessageObj));
+			// }
+		});
+	}
+};
 
-			const prevMessageArray = messageObj[conversationId] || [];
-			const foundMessageIndex = prevMessageArray?.findIndex(
-				(mes) => mes._id === messageId
-			);			
+//when our message is not sent
+const handleMessageFailure = (socket, dispatch, messageObj) => {
+	if (socket) {
+		socket.on(MESSAGE_EVENTS.MESSAGE_FAILED, (data) => {
+			let newMessageObj = findAndUpdateMessageObj(
+				messageObj,
+				MESSAGE_STATUS.FAILURE,
+				data
+			);
 
-			if (foundMessageIndex !== -1) {
-				// Create a copy of the previous message array
-				const updatedMessageArray = [...prevMessageArray];
-
-				// Create the updated message object
-				const updatedMessage = {
-					...prevMessageArray[foundMessageIndex],
-					status: MESSAGE_STATUS.READ,
-				};
-
-				// Replace the old message with the updated message
-				updatedMessageArray[foundMessageIndex] = updatedMessage;
-
-				// Update the message object with the new array
-				newMessageObj[conversationId] = updatedMessageArray;
-
-				dispatch(setMessageObj(newMessageObj));
-			}
+			dispatch(setMessageObj(newMessageObj));
 		});
 	}
 };
@@ -167,4 +196,5 @@ export {
 	handleNewMessageReceived,
 	handleSentMessageStatusUpdate,
 	handleMessageReadByReceiver,
+	handleMessageFailure,
 };
