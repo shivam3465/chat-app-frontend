@@ -11,7 +11,6 @@ const handleFriendRequestSending = (socket, setLoading, data) => {
 const handleFriendRequestDelivered = (socket, setLoading, setSentRequest) => {
 	if (socket) {
 		socket?.on(USER_EVENTS.FRIEND_REQUEST_DELIVERED, (data) => {
-			console.log("response received", data);
 			setLoading(false);
 			setSentRequest(true);
 		});

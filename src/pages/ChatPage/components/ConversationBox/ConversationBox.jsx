@@ -6,15 +6,15 @@ import AddConversationButton from "./components/AddConversation/AddConversation"
 import { useSelector } from "react-redux";
 
 const ConversationBox = () => {
-	const {user}=useSelector(state=> state.user);
-	
+	const { conversations } = useSelector((state) => state.conversation);
+
 	return (
 		<div className="flex-1 flex flex-col w-full bg-[#f5f5f5] relative">
 			<Header />
 			<SearchBar />
 
 			<div className="overflow-y-auto h-full flex flex-col scrollbar-custom pt-2">
-				{user?.conversations?.map((conversation, i) => (
+				{conversations?.map((conversation, i) => (
 					<Conversation conversation={conversation || {}} key={i} />
 				))}
 

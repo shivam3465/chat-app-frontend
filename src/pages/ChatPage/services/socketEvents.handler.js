@@ -1,7 +1,12 @@
 import { MESSAGE_EVENTS, MESSAGE_STATUS } from "../../../Events/message.events";
 import { USER_EVENTS } from "../../../Events/user.events";
+import {	
+	setConversationLoading,
+	setConversations,
+} from "../../../redux/slice/conversation.slice";
 import { setMessageObj } from "../../../redux/slice/message.slice";
 import { setNotifications } from "../../../redux/slice/user.slice";
+import { getData } from "../../../services/getData.api";
 
 const findAndUpdateMessageObj = (
 	messageObj,
@@ -50,7 +55,7 @@ const handleFriendRequestAcceptedByUser = (
 	prevNotifications
 ) => {
 	if (socket) {
-		socket?.on(USER_EVENTS.FRIEND_REQUEST_ACCEPTED, (data) => {
+		socket?.on(USER_EVENTS.FRIEND_REQUEST_ACCEPTED, async (data) => {
 			// console.log("notification received", data);
 
 			let newNotifications = prevNotifications.filter(
@@ -61,6 +66,17 @@ const handleFriendRequestAcceptedByUser = (
 				readOnly: true,
 				notificationId: new Date().getTime(),
 			});
+
+			//fetch new conversation
+			dispatch(setConversationLoading(true));
+			const [result, error] = await getData("conversation/all");
+
+			if (error) {
+				console.log(error);
+				return;
+			}
+						
+			dispatch(setConversations(result?.conversations));
 
 			if (prevNotifications) dispatch(setNotifications(newNotifications));
 			else dispatch(setNotifications([data]));
@@ -152,7 +168,7 @@ const handleMessageReadByReceiver = (socket, dispatch, messageObj) => {
 	if (socket) {
 		socket.on(MESSAGE_EVENTS.MESSAGE_READ_BY_USER, (data) => {
 			const { messageId, conversationId } = data;
-
+			
 			if (!messageId || !conversationId) {
 				console.log(
 					"faulty data received , data received : ",

@@ -21,7 +21,8 @@ const SocketProvider = ({ children }) => {
 			});
 
 			socketInstance.on("connect", () => {
-				console.log(`Connected with socket ID: ${socketInstance.id}`);
+				// console.log(`Connected with socket ID: ${socketInstance.id}`);
+				console.log("Socket connected");
 				setSocket(socketInstance);
 			});
 

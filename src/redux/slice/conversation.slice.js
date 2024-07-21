@@ -1,18 +1,19 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-	conversation: null,
+	conversations: null,
 	showModal: false,
 	selectedConversation: null,
 	isTabActive: false,
+	isConversationLoading: false,
 };
 
 const conversationSlice = createSlice({
 	name: "conversation",
 	initialState,
 	reducers: {
-		setConversation: (state, action) => {
-			state.conversation = action.payload;
+		setConversations: (state, action) => {
+			state.conversations = action.payload;
 		},
 		setShowModal: (state, action) => {
 			state.showModal = action.payload;
@@ -23,14 +24,18 @@ const conversationSlice = createSlice({
 		setTabActive: (state, action) => {
 			state.isTabActive = action.payload;
 		},
+		setConversationLoading: (state, action) => {
+			state.isConversationLoading = action.payload;
+		},
 	},
 });
 
 export const {
-	setConversation,
+	setConversations,
 	setShowModal,
 	setSelectedConversation,
 	setTabActive,
+	setConversationLoading,
 } = conversationSlice.actions;
 
 export const conversationReducer = conversationSlice.reducer;

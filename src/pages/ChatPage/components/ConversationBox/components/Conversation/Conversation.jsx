@@ -15,9 +15,6 @@ const Conversation = ({ conversation }) => {
 		_id,
 	} = conversation;
 
-	// console.log("conversation ",conversation);
-
-	const { user } = useSelector((state) => state.user);
 	const dispatch = useDispatch();
 
 	return (

@@ -3,11 +3,16 @@ import ProfileImage from "../../../../../../../../../../assets/profile.png";
 import { IoMdCheckmark, IoMdClose } from "react-icons/io";
 
 import { getSocket } from "../../../../../../../../../context/socket";
-import { handleAcceptFriendRequest, handleRejectFriendRequest } from "../../../services/socketEvent.handler";
+import {
+	handleAcceptFriendRequest,
+	handleRejectFriendRequest,
+} from "../../../services/socketEvent.handler";
+import { useDispatch } from "react-redux";
+import { setNotifications } from "../../../../../../../../../redux/slice/user.slice";
 
-
-const Notification = ({ notification, setClosePopOver,notifications}) => {
+const Notification = ({ notification, setClosePopOver, notifications }) => {
 	const socket = getSocket();
+	const dispatch = useDispatch();
 
 	const acceptFriendRequest = () => {
 		setClosePopOver(true);
@@ -16,13 +21,17 @@ const Notification = ({ notification, setClosePopOver,notifications}) => {
 
 	const rejectFriendRequest = () => {
 		setClosePopOver(true);
+		closeNotification();
 		handleRejectFriendRequest(socket, notification?.id);
 	};
 
 	const closeNotification = () => {
-		setClosePopOver(true);
-		const newNotificationArray = notifications?.filter((item))
-	}
+		setClosePopOver(true);		
+		const newNotificationArray = notifications?.filter(
+			(item) => item.id !== notification.id
+		);
+		dispatch(setNotifications(newNotificationArray));		
+	};
 
 	return (
 		<div className="flex items-center justify-start px-2 py-4 w-full relative">

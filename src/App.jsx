@@ -18,7 +18,7 @@ import {
 	setNotifications,
 	setUser,
 } from "./redux/slice/user.slice";
-import { setConversation } from "./redux/slice/conversation.slice";
+import { setConversations } from "./redux/slice/conversation.slice";
 import { getData } from "./services/getData.api";
 import { USER_ROUTES } from "./utils/config";
 import { SocketProvider } from "./context/socket";
@@ -37,7 +37,7 @@ function App() {
 		if (data) {
 			dispatch(setUser(data.user));
 			dispatch(setIsLoggedIn(true));
-			dispatch(setConversation(data.user.conversations));
+			dispatch(setConversations(data.user.conversations));
 			dispatch(setNotifications(data.user.invitesReceived));
 		} else {
 			dispatch(setUser({}));
