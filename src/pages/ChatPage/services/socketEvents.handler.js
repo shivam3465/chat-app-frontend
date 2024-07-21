@@ -1,6 +1,6 @@
 import { MESSAGE_EVENTS, MESSAGE_STATUS } from "../../../Events/message.events";
 import { USER_EVENTS } from "../../../Events/user.events";
-import {	
+import {
 	setConversationLoading,
 	setConversations,
 } from "../../../redux/slice/conversation.slice";
@@ -48,6 +48,30 @@ const findAndUpdateMessageObj = (
 	return null;
 };
 
+const updateMessageStatus = (data, messageObj, dispatch, messageStatus) => {
+	const { prevMessageId, newMessageId, conversationId, status } = data;
+
+	if (!prevMessageId || !newMessageId || !conversationId || !status) {
+		console.log(
+			"faulty data received , data received : ",
+			messageStatus,
+			data
+		);
+		return;
+	}
+
+	const newMessageObj = findAndUpdateMessageObj(
+		messageObj,
+		messageStatus,
+		{
+			messageId: prevMessageId,
+			conversationId,
+		},
+		newMessageId
+	);
+	if (newMessageObj) dispatch(setMessageObj(newMessageObj));
+};
+
 //will look for the response of above emitted event
 const handleFriendRequestAcceptedByUser = (
 	socket,
@@ -75,7 +99,7 @@ const handleFriendRequestAcceptedByUser = (
 				console.log(error);
 				return;
 			}
-						
+
 			dispatch(setConversations(result?.conversations));
 
 			if (prevNotifications) dispatch(setNotifications(newNotifications));
@@ -135,30 +159,21 @@ const handleNewMessageReceived = (socket, dispatch, messageObj) => {
 const handleSentMessageStatusUpdate = (socket, dispatch, messageObj) => {
 	if (socket) {
 		socket.on(MESSAGE_EVENTS.MESSAGE_DELIVERED, (data) => {
-			const { prevMessageId, newMessageId, conversationId, status } =
-				data;
-
-			if (!prevMessageId || !newMessageId || !conversationId || !status) {
-				console.log(
-					"faulty data received , data received : ",
-					MESSAGE_EVENTS.MESSAGE_DELIVERED,
-					data
-				);
-				return;
-			}
-
-			// yaha se sab naya hai
-			const newMessageObj = findAndUpdateMessageObj(
+			updateMessageStatus(
+				data,
 				messageObj,
-				MESSAGE_STATUS.DELIVERED,
-				{
-					messageId: prevMessageId,
-					conversationId,
-				},
-				newMessageId
+				dispatch,
+				MESSAGE_STATUS.DELIVERED
 			);
-			if (newMessageObj) dispatch(setMessageObj(newMessageObj));
-			// }
+		});
+
+		socket.on(MESSAGE_EVENTS.MESSAGE_RECEIVED_BY_SERVER, (data) => {
+			updateMessageStatus(
+				data,
+				messageObj,
+				dispatch,
+				MESSAGE_STATUS.SENT
+			);
 		});
 	}
 };
@@ -185,8 +200,7 @@ const handleMessageReadByReceiver = (socket, dispatch, messageObj) => {
 				null
 			);
 
-			if (newMessageObj) dispatch(setMessageObj(newMessageObj));
-			// }
+			if (newMessageObj) dispatch(setMessageObj(newMessageObj));			
 		});
 	}
 };
