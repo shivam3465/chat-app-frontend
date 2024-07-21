@@ -72,6 +72,43 @@ const updateMessageStatus = (data, messageObj, dispatch, messageStatus) => {
 	if (newMessageObj) dispatch(setMessageObj(newMessageObj));
 };
 
+const findAndUpdateLastSentMessageInConversation = (
+	message,
+	conversationArr,
+	selectedConversation,
+	dispatch
+) => {
+	let conversationIndex = conversationArr.findIndex(
+		(conversation) => conversation._id === message.conversationId
+	);	
+
+	if (conversationIndex !== -1) {
+		// Create a copy of the conversation object
+		let updatedConversation = {};
+		updatedConversation =	!selectedConversation ||		
+			message.conversationId !== selectedConversation?._id
+				? {
+						...conversationArr[conversationIndex],
+						lastMessageSent: message,
+						unreadMessageCount:
+							(conversationArr[conversationIndex]
+								.unreadMessageCount || 0) + 1,
+				  }
+				: {
+						...conversationArr[conversationIndex],
+						lastMessageSent: message,
+				  };
+
+		let newConversationArr = [
+			...conversationArr.slice(0, conversationIndex),
+			updatedConversation,
+			...conversationArr.slice(conversationIndex + 1),
+		];
+
+		dispatch(setConversations(newConversationArr));
+	}
+};
+
 //will look for the response of above emitted event
 const handleFriendRequestAcceptedByUser = (
 	socket,
@@ -123,11 +160,17 @@ const handleFriendRequestReceived = (socket, dispatch, prevNotifications) => {
 };
 
 //when current user is receiver
-const handleNewMessageReceived = (socket, dispatch, messageObj) => {
+const handleNewMessageReceived = (
+	socket,
+	dispatch,
+	messageObj,
+	conversations,
+	selectedConversation
+) => {
 	if (socket) {
 		socket.on(MESSAGE_EVENTS.NEW_MESSAGE_RECEIVED, (data) => {
 			const { sender, message } = data;
-
+			console.log("listening ",selectedConversation,message);
 			if (!sender || !message) {
 				console.log(
 					"faulty data received , data received : ",
@@ -151,6 +194,14 @@ const handleNewMessageReceived = (socket, dispatch, messageObj) => {
 				: [newMessage];
 
 			dispatch(setMessageObj(newMessageObj));
+
+			//updating in particular conversation for unread messages
+			findAndUpdateLastSentMessageInConversation(
+				message,
+				conversations,
+				selectedConversation,
+				dispatch
+			);
 		});
 	}
 };
@@ -183,7 +234,7 @@ const handleMessageReadByReceiver = (socket, dispatch, messageObj) => {
 	if (socket) {
 		socket.on(MESSAGE_EVENTS.MESSAGE_READ_BY_USER, (data) => {
 			const { messageId, conversationId } = data;
-			
+
 			if (!messageId || !conversationId) {
 				console.log(
 					"faulty data received , data received : ",
@@ -200,7 +251,7 @@ const handleMessageReadByReceiver = (socket, dispatch, messageObj) => {
 				null
 			);
 
-			if (newMessageObj) dispatch(setMessageObj(newMessageObj));			
+			if (newMessageObj) dispatch(setMessageObj(newMessageObj));
 		});
 	}
 };

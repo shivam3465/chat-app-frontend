@@ -16,7 +16,7 @@ import {
 
 const ChatPage = () => {
 	const { isLoggedIn } = useSelector((state) => state.user);
-	const { selectedConversation } = useSelector((state) => state.conversation);
+	const { selectedConversation, conversations } = useSelector((state) => state.conversation);
 
 	const { notifications } = useSelector((state) => state.user);
 
@@ -29,7 +29,7 @@ const ChatPage = () => {
 
 	handleFriendRequestReceived(socket, dispatch, notifications);
 
-	handleNewMessageReceived(socket, dispatch, messageObj);
+	handleNewMessageReceived(socket, dispatch, messageObj, conversations, selectedConversation);	
 
 	handleSentMessageStatusUpdate(socket, dispatch, messageObj);
 

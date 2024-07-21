@@ -1,9 +1,14 @@
+import { useSelector, useDispatch } from "react-redux";
+
 import { IoIosArrowDown } from "react-icons/io";
 import { TbPinned } from "react-icons/tb";
+
 import profileImg from "../../../../../../../assets/profile.png";
 import { getFormattedDate } from "../../../../../../utils/helperFunctions";
-import { useSelector, useDispatch } from "react-redux";
-import { setSelectedConversation } from "../../../../../../redux/slice/conversation.slice";
+import {
+	setConversations,
+	setSelectedConversation,
+} from "../../../../../../redux/slice/conversation.slice";
 
 const Conversation = ({ conversation }) => {
 	const {
@@ -15,11 +20,37 @@ const Conversation = ({ conversation }) => {
 		_id,
 	} = conversation;
 
+	const { conversations } = useSelector((state) => state.conversation);
+
 	const dispatch = useDispatch();
+
+	const handleConversationSelect = () => {
+		dispatch(setSelectedConversation(conversation));
+
+		let conversationIndex = conversations.findIndex(
+			(curConv) => conversation._id === curConv._id
+		);
+
+		if (conversationIndex !== -1) {
+			// Create a copy of the conversation object
+			let updatedConversation = {
+				...conversation,
+				unreadMessageCount: 0,
+			};
+
+			let newConversations = [
+				...conversations.slice(0, conversationIndex),
+				updatedConversation,
+				...conversations.slice(conversationIndex + 1),
+			];
+
+			dispatch(setConversations(newConversations));
+		}
+	};
 
 	return (
 		<div
-			onClick={() => dispatch(setSelectedConversation(conversation))}
+			onClick={handleConversationSelect}
 			className="px-[5px] py-[15px] my-1 mx-[16px] rounded-[12px] shadow-md shadow-[#dbdbdb] bg-white hover:border-[#566fff98] border-[#ebebeb] border-[2px] hover:cursor-pointer flex items-center">
 			<div className="min-w-[50px] max-w-[50px] h-[50px] rounded-full overflow-hidden ml-1">
 				<img
@@ -41,7 +72,11 @@ const Conversation = ({ conversation }) => {
 
 				<div className="flex items-center justify-between py-[2px]">
 					<div
-						className="text-[13px] max-w-[280px] overflow-hidden text-ellipsis whitespace-nowrap "
+						className={`text-[13px] max-w-[280px] overflow-hidden text-ellipsis whitespace-nowrap ${
+							unreadMessageCount > 0
+								? "text-[#b951f5] font-semibold"
+								: "text-black font-normal"
+						} `}
 						title={lastMessageSent?.messageContent || ""}>
 						{lastMessageSent?.messageContent || ""}
 					</div>
