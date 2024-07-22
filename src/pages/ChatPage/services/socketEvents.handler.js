@@ -169,8 +169,7 @@ const handleNewMessageReceived = (
 ) => {
 	if (socket) {
 		socket.on(MESSAGE_EVENTS.NEW_MESSAGE_RECEIVED, (data) => {
-			const { sender, message } = data;
-			console.log("listening ",selectedConversation,message);
+			const { sender, message } = data;			
 			if (!sender || !message) {
 				console.log(
 					"faulty data received , data received : ",
@@ -187,7 +186,7 @@ const handleNewMessageReceived = (
 			let newMessageObj = { ...messageObj };
 
 			const prevMessageArray = messageObj[conversationId];
-			const newMessage = { ...message, self: false };
+			const newMessage = { ...message, self: false };			
 
 			newMessageObj[conversationId] = prevMessageArray
 				? [...prevMessageArray, newMessage]
