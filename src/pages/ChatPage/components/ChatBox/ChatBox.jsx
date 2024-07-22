@@ -68,6 +68,7 @@ const ChatBox = () => {
 			repliedMessage,
 			messageObj,
 			setCurMessage,
+			setRepliedMessage,
 			selectedConversation?.users,
 			user.id,
 			selectedConversation._id,
