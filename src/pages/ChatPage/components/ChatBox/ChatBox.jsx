@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchAllMessages } from "./services/request.handler";
 import { sendMessage } from "./services/socketEvent.handler";
 import { useIsTabActive } from "../../../../hooks/useIsTabActive";
+import { IoMdClose } from "react-icons/io";
 
 // setMessages([
 // 	{
@@ -42,6 +43,8 @@ import { useIsTabActive } from "../../../../hooks/useIsTabActive";
 const ChatBox = () => {
 	const [inputFile, setInputFile] = useState("");
 	const [curMessage, setCurMessage] = useState("");
+	const [repliedMessage, setRepliedMessage] = useState(null);
+	const [highlightedReply, setHighlightedReply] = useState("");
 
 	const dispatch = useDispatch();
 
@@ -62,6 +65,7 @@ const ChatBox = () => {
 		sendMessage(
 			socket,
 			curMessage,
+			repliedMessage,
 			messageObj,
 			setCurMessage,
 			selectedConversation?.users,
@@ -82,6 +86,7 @@ const ChatBox = () => {
 	}, [selectedConversation]);
 
 	const messageEndRef = useRef(null);
+	const messageRefs = useRef({}); // Refs for each message
 
 	// Function to scroll to the bottom of the messages
 	const scrollToBottom = () => {
@@ -89,6 +94,24 @@ const ChatBox = () => {
 			messageEndRef.current.scrollIntoView({ behavior: "smooth" });
 		}
 	};
+
+	// Function to scroll to a specific message
+	const scrollToMessage = (messageId) => {
+		const messageElement = messageRefs.current[messageId];
+		if (messageElement) {
+			messageElement.scrollIntoView({ behavior: "smooth" });
+			setHighlightedReply(messageId);
+		}
+	};
+
+	useEffect(() => {
+		if (highlightedReply) {
+			const timeOut = setTimeout(() => {
+				setHighlightedReply("");
+				clearTimeout(timeOut);
+			},800);
+		}
+	}, [highlightedReply]);
 
 	// Automatically scroll to the bottom when messages change
 	useEffect(() => {
@@ -104,8 +127,14 @@ const ChatBox = () => {
 						return (
 							<Message
 								key={i}
+								messageRef={(el) =>
+									(messageRefs.current[message._id] = el)
+								}
 								messageEndRef={messageEndRef}
 								message={message}
+								setRepliedMessage={setRepliedMessage}
+								scrollToMessage={scrollToMessage}
+								highlightReply={highlightedReply}
 							/>
 						);
 					})}
@@ -113,6 +142,23 @@ const ChatBox = () => {
 
 			{/* input section  */}
 			<div className="bg-white w-full pt-2 shadow-shadowTop ">
+				{repliedMessage && (
+					<div
+						className={`flex items-center justify-betweenmax-w-[95%] px-4 h-[32px] mr-4 ml-2 rounded-md mt-[5px] mb-[10px] bg-white cursor-pointer  `}>
+						<div
+							className={`w-full overflow-hidden text-ellipsis whitespace-nowrap border-[1px] border-l-[4px] pl-[6px] rounded-md h-full ${
+								repliedMessage.self
+									? "border-[#b17bef] bg-[#d8b7f95c]"
+									: "border-[#aed9ee] bg-[#c4deef59]"
+							} `}>
+							{repliedMessage.messageContent}
+						</div>
+						<IoMdClose
+							className="text-[20px] text-[#515151] border-[2px] border-[#515151] rounded-full w-[20px] aspect-auto cursor-pointer active:scale-95  font-bold ml-1"
+							onClick={() => setRepliedMessage(null)}
+						/>
+					</div>
+				)}
 				<div className="mb-6 mx-4 flex items-center bg-[#f5f5f5] border-[1px] border-[#c3c3c349] overflow-hidden justify-between rounded-full">
 					<GrAttachment
 						onClick={() => fileRef.current.click()}
